@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h1>Python Qualification Test</h1>
+
+<p>We need to make sure you understand some basic Python. Please answer the questions below.</p>
+<div class="well">
+    <h4>Time remaining: {{ min_left }} minutes and {{ sec_left }} seconds</h4>
+</div>
+
+<form id="form1" action="qualification" method="post">
+    <input type="hidden" name="worker_id" value="{{ worker_id }}" />
+
+    {% for short in q_names %}
+    <h3>{{ short }}</h3>
+
+    <div class="form-group">
+        <label class="control-label">{{ questions[short] }}</label>
+        {% for i, answer in answers[short] %}
+        <div class="radio">
+            <label>
+                <input type="radio" id="{{ short }}-{{ i }}" name="{{ short }}" value="{{ i }}" />
+                {% autoescape false %}
+                <span class="code">{{ answer }}</span>
+                {% endautoescape %}
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% endfor %}
+
+    <hr />
+    <input type="submit" class="btn btn-success" value="Submit" />
+    <br />
+    <br />
+</form>
+
+<script type="text/javascript">
+    $("#form1").validate({
+        rules: {
+        {% for short in q_names %}
+            {{ short }}: { required: true },
+        {% endfor %}
+        },
+        errorPlacement: function(error, element) {
+            if (element.parent('.input-group').length || element.prop('type') === 'checkbox' || element.prop('type') === 'radio') {
+                error.insertBefore(element.parent());
+            } else {
+                error.insertAfter(element);
+            }
+        }
+    });
+</script>
+
+{% endblock %}
+

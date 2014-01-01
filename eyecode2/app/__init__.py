@@ -157,7 +157,7 @@ class QualificationResults(db.Model):
     ended = Column(DateTime)
     created = Column(DateTime)
 
-    def __init__(self, worker_id, language, started, ended, result):
+    def __init__(self, worker_id, language, started, ended=None, result=None):
         self.worker_id = worker_id
         self.language = language
         self.started = started
@@ -191,10 +191,4 @@ def not_found(error):
 
 from app.core.views import mod as core
 app.register_blueprint(core)
-
-# Later on you'll import the other blueprints the same way:
-#from app.comments.views import mod as commentsModule
-#from app.posts.views import mod as postsModule
-#app.register_blueprint(commentsModule)
-#app.register_blueprint(postsModule)
 

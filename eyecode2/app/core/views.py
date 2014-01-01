@@ -3,7 +3,7 @@ from glob import glob
 from datetime import datetime, timedelta
 from flask import Blueprint, request, render_template, flash, g, session, redirect, url_for, \
                   abort, jsonify
-from .. import db, Experiment, Trial, TestAnswer, TrialResponse, program_versions, program_bases
+from .. import db, Experiment, Trial, TestAnswer, TrialResponse, QualificationResults, program_versions, program_bases
 from grading import grade_string
 
 # ----------------------------------------------------------------------------
@@ -30,6 +30,104 @@ def get_experiment():
     assert "experiment_id" in session
     exp_id = int(session["experiment_id"])
     return Experiment.query.get(exp_id)
+
+def shuffled(xs):
+    return sorted(xs, key=lambda x: random.random())
+
+# ----------------------------------------------------------------------------
+
+QUAL_MINUTES = 5
+QUAL_QUESTIONS = {
+    "Variables" : "How do you declare a variable?",
+    "Functions" : "How do you declare a function?",
+    "Printing" : "How do you print \"hellohello\" to the console?",
+    "Lists" : "How do you build lists?",
+    "Loops" : "How do you print the items in a list?"
+}
+
+QUAL_ANSWERS = {
+    "Variables": ["int x = 7", "x = 7", "x <- 7", "x == 7"],
+    "Functions": ["f(x: int): int =<br />&nbsp;&nbsp;return x + 1", "def f(x):<br />return x + 1", "int f(int x) {<br />&nbsp;&nbsp;&nbsp;&nbsp;return x + 1;<br />}", "def f(x):<br />&nbsp;&nbsp;&nbsp;&nbspreturn x + 1"],
+    "Printing": ["System.out.println(\"hello\", \"hello\");", "print \"hello\"<br />print \"hello\"", "System.out.println(\"hello\");<br />System.out.println(\"hello\");", "print \"hello\", \"hello\""],
+    "Lists": ["x = []<br />x.append(5)", "x = new list()<br />x.add(5)", "ArrayList x;<br />x.add(5);", "ArrayList x = new ArrayList();<br />x.add(5);"],
+    "Loops": ["for x in [1, 2, 3]:<br />&nbsp;&nbsp;&nbsp;&nbsp;print x",
+             "int[] list = new int[] { 1, 2, 3 };<br />for (int i = 0; i < list.length; i++)<br />&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(x[i]);",
+             "foreach (x: int in [1, 2, 3])<br />&nbsp;&nbsp;&nbsp;&nbsp;print x",
+             "int[] list = new int[] { 1, 2, 3 };<br />list.each(x => System.out.println(x));"
+            ]
+}
+
+QUAL_CORRECT = {
+    "Variables" : 1,
+    "Functions" : 3,
+    "Printing" : 3,
+    "Lists" : 0,
+    "Loops" : 0
+}
+
+@mod.route("/qualification", methods=["GET", "POST"])
+def qualification():
+    if request.method == "POST":
+        # Submitting answers
+        assert "worker_id" in request.form
+        worker_id = request.form["worker_id"]
+        assert len(worker_id) > 0
+
+        # Check for duplicate response
+        qr = QualificationResults.query.filter(QualificationResults.worker_id == worker_id).first()
+        assert qr is not None and qr.started is not None, "Missing or not started"
+        assert qr.ended is None and qr.result is None, "Already submitted"
+        qr.ended = datetime.now()
+
+        # Check time limit and answers
+        result = "pass"
+
+        qual_sec = (qr.ended - qr.started).total_seconds()
+        if qual_sec > (QUAL_MINUTES * 60):
+            result = "timeout"
+        else:
+            # Check answers
+            for q in QUAL_QUESTIONS.keys():
+                assert q in request.form
+                answer = int(request.form[q])
+                if answer != QUAL_CORRECT[q]:
+                    result = "fail"
+                    print q, answer, QUAL_CORRECT[q]
+                    break
+
+        # Save result
+        qr.result = result
+        db.session.commit()
+
+        return render_template("core/qual-results.html", result=result)
+    else:
+        # Taking test
+        assert "worker_id" in request.args
+        worker_id = request.args["worker_id"]
+        qr = QualificationResults.query.filter(QualificationResults.worker_id == worker_id).first()
+        if qr is None:
+            # Create qualification result
+            qr = QualificationResults(worker_id, "python", datetime.now())
+            db.session.add(qr)
+            db.session.commit()
+
+        qual_max_time = timedelta(minutes=QUAL_MINUTES)
+        time_left = qual_max_time - (datetime.now() - qr.started)
+
+        if time_left.total_seconds() < 0:
+            flash("Time limit has been exceeded. You will not be able to complete the experiment.",
+                category="danger")
+            min_left, sec_left = 0, 0
+        else:
+            min_left = int(time_left.total_seconds() / 60)
+            sec_left = int((time_left - timedelta(seconds=min_left * 60)).total_seconds())
+
+        # Randomize question and answer orders
+        q_names = shuffled(QUAL_QUESTIONS.keys())
+        q_answers = { k : list(shuffled(enumerate(v))) for k, v in QUAL_ANSWERS.iteritems() }
+        return render_template("core/qualification.html", q_names=q_names,
+                questions=QUAL_QUESTIONS, answers=q_answers, worker_id=worker_id,
+                min_left=min_left, sec_left=sec_left)
 
 # ----------------------------------------------------------------------------
 
@@ -67,7 +165,7 @@ def experiment():
         db.session.add(exp)
 
         # Create trials (random order, random version)
-        for base in sorted(program_bases, key=lambda x: random.random()):
+        for base in shuffled(program_bases):
             version = random.sample(program_versions[base], 1)[0]
             trial = Trial(exp.id, "python", base, version)
             exp.trials.append(trial)

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h1>Qualification Test Results</h1>
+
+{% if result == "pass" %}
+
+<h4 class="text-success">Congratulations!</h4>
+<p>You have passed the qualification test. You may now start the experiment.</p>
+
+{% elif result == "fail" %}
+
+<h4 class="text-danger">Sorry :(</h4>
+<p>You answered one or more questions incorrectly. You will not be able to complete the experiment.</p>
+
+{% elif result == "timeout" %}
+
+<h4 class="text-danger">Sorry :(</h4>
+<p>You took more than the allotted time. You will not be able to complete the experiment.</p>
+
+{% endif %}
+
+{% endblock %}

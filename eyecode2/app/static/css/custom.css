@@ -47,3 +47,7 @@ div.content {
 .checkbox-inline.no_indent:last-child {
   margin-right: 0px;
 }
+
+span.code {
+    font-family: monospace;
+}
