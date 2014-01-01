@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h1>Pre-Survey</h1>
+
+<p>Welcome to the eyeCode experiment! Before starting, please take a moment to
+answer a few questions about yourself.</p>
+
+<form id="form1" action="experiment" method="post">
+    <h3>Age and Gender</h3>
+    <div class="form-group">
+        <label for="age" class="control-label">How old are you?</label>
+        <input type="text" id="age" name="age" class="form-control" placeholder="Age in years" />
+    </div>
+
+    <div class="form-group">
+        <label class="control-label" for="gender">What is your gender?</label><br />
+        <label class="radio-inline">
+            <input type="radio" id="gender-female" name="gender" value="female" />Female
+        </label>
+        <label class="radio-inline">
+            <input type="radio" id="gender-male" name="gender" value="male" />Male
+        </label>
+        <label class="radio-inline">
+            <input type="radio" id="gender-unreported" name="gender" value="unreported" />I'd rather not say
+        </label>
+    </div>
+    <hr />
+
+    <h3>Languages</h3>
+    <div class="form-group">
+        <label class="control-label">
+            Which of the following programming languages are you familiar with?
+        </label>
+        <div class="checkboxes">
+            {% for lang in langs %}
+            <label class="checkbox-inline no_indent" for="languages-{{ loop.index }}">
+                <input type="checkbox" id="languages-{{ loop.index }}" name="languages" value="{{ lang }}" />{{ lang }}
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <br />
+
+    <div class="form-group">
+        <label class="control-label">Which programming language have you most recently used?</label>
+        <select id="lang_used" name="lang_used" class="form-control">
+            <option value="">Choose an option</option>
+            {% for lang in langs %}
+            <option>{{ lang }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <hr />
+
+    <h3>Education</h3>
+    <div class="form-group">
+        <label class="control-label">Are you now, or have you ever been, a Computer Science (CS) major?</label>
+        <div class="radio">
+            <label>
+                <input type="radio" id="cs_major-no" name="cs_major" value="no" />No, I've never been a CS major
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" id="cs_major-past" name="cs_major" value="past" />I <strong>was</strong> a CS major
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" id="cs_major-current" name="cs_major" value="current" />I'm <strong>currently</strong> a CS major
+            </label>
+        </div>
+    </div>
+    <br />
+
+    <div class="form-group">
+        <label class="control-label" for="degree">What is the highest degree you've <span class="text-info">completed</span>?</label>
+        <div class="radio">
+            <label>
+                <input type="radio" id="degree-none" name="degree" value="none" />No degree
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" id="degree-bachelors" name="degree" value="bachelors" />Bachelors
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" id="degree-masters" name="degree" value="masters" />Masters
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" id="degree-phd" name="degree" value="phd" />Ph.D.
+            </label>
+        </div>
+    </div>
+
+    <hr />
+
+    <h3>Experience</h3>
+    <div class="form-group">
+        <label for="age" class="control-label">How many years of <span class="text-success">Python</span> experience do you have?</label>
+        <input type="text" id="py_years" name="py_years" class="form-control" placeholder="Python experience" />
+    </div>
+
+    <br />
+
+    <div class="form-group">
+        <label for="age" class="control-label">How many years of <span class="text-info">overall programming</span> experience do you have?</label>
+        <input type="text" id="prog_years" name="prog_years" class="form-control" placeholder="Programming experience" />
+    </div>
+
+    <hr />
+    <input type="submit" class="btn btn-success" value="Start Experiment" />
+    <br />
+    <br />
+</form>
+
+<script type="text/javascript">
+    $("#form1").validate({
+        rules: {
+            age: { required: true, digits: true, min: 18 },
+            py_years: { required: true, number: true, min: 0.5 },
+            prog_years: { required: true, number: true, min: 0.5 },
+            lang_used: { required: true },
+            gender: { required: true },
+            cs_major: { required: true },
+            degree: { required: true },
+            gender: { required: true },
+            languages: { required: true },
+        },
+        errorPlacement: function(error, element) {
+            if (element.parent('.input-group').length || element.prop('type') === 'checkbox' || element.prop('type') === 'radio') {
+                error.insertBefore(element.parent());
+            } else {
+                error.insertAfter(element);
+            }
+        }
+    });
+</script>
+
+{% endblock %}

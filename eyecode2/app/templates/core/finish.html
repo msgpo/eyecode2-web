@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h1>Thank You!</h1>
+
+<p>Thank you for completing the experiment.</p>
+
+{% if exp.is_mt() %}
+<div class="well">
+    <h4>Your code is:</h4>
+    <p>{{ exp.mt_code() }}</p>
+</div>
+{% endif %}
+
+<div class="col-xs-5">
+    <ul class="list-group">
+    {% for t in exp.trials %}
+    <li class="list-group-item">Program {{ loop.index }}
+    
+    {% if t.response_grade %}
+    <span class="label label-info pull-right">{{ t.response_grade }}</span>
+    {% else %}
+    <span class="label label-warning pull-right">manual</span>
+    {% endif %}
+    <br style="clear: both;" />
+    </li>
+    {% endfor %}
+    </ul>
+</div>
+
+<div class="col-xs-4">
+    <h4>Rubric</h4>
+    <span class="label label-success">exact</span> - perfect match
+    <br />
+    <br />
+    <span class="label label-info">lines</span> - correct modulo formatting
+    <br />
+    <br />
+    <span class="label label-default">values</span> - correct modulo lines/formatting
+    <br />
+    <br />
+    <span class="label label-warning">manual</span> - need to grade by hand
+</div>
+
+{% endblock %}

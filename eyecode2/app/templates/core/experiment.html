@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h1>Experiment</h1>
+<p>Welcome to the eyeCode experiment! To finish, you must predict the printed
+output of the <span class="text-info">{{ exp.trials|length }} programs</span> below.</p>
+
+<p>You may complete them in any order within the time remaining. Please <span
+    class="text-danger">do not use a Python interpreter</span> for your
+answers (we want <strong>your</strong> predictions).</p>
+
+<div class="well">
+    <h4>
+        Time remaining: {{ min_left }} minutes, {{ sec_left }} seconds
+    </h4>
+</div>
+
+<div class="col-xs-5">
+    <ul class="list-group">
+    {% for t in exp.trials %}
+    {% if t.started and t.ended %}
+        <li class="list-group-item text-muted">Program {{ loop.index }}
+        <span class="label label-success pull-right">completed</span>
+    {% elif t.started %}
+        <li class="list-group-item text-danger">Program {{ loop.index }}
+        <span class="label label-danger pull-right">incomplete</span>
+    {% else %}
+        <li class="list-group-item">Program {{ loop.index }}
+        <a href='trial?n={{ loop.index }}' class="btn btn-primary pull-right">Start</a>
+    {% endif %}
+    <br style="clear: both;" />
+    </li>
+    {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

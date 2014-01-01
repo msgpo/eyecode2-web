@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block body %}
+
+<div>What do <strong>you</strong> think the following program will print?</div>
+<hr />
+
+<div class"row">
+    <div class="col-sm-6">
+        <img class="code" src="{{ url_for('static', filename=image_path) }}" />
+    </div>
+    <div class="col-sm-6">
+        <form action="experiment" method="post" onsubmit="return validateResponse();">
+            <textarea id="response" name="response" cols="35" rows="15"></textarea>
+            <input id="responses_js" type="hidden" name="responses_js" value="[]" />
+
+            <br />
+            <br />
+            <input id="submit1" type="submit" />
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var finished = false;
+    var responses = []
+
+    function nowUTC() {
+        var now = new Date();
+        return Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(),
+            now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+    }
+
+    function validateResponse() {
+        resp_val = $("#response").val();
+
+        // Check for empty response
+        if ((resp_val == null) || (resp_val.length < 1)) {
+            alert("Please enter what you think this program will print!");
+            return false;
+        }
+
+        // Final response
+        responses.push([nowUTC(), resp_val]);
+
+        // Update form variables
+        finished = true;
+        $("#responses_js").val(JSON.stringify(responses))
+        $("#submit1").attr("disabled", "disabled");
+        return true;
+    }
+
+    $(function() {
+        $("#response").focus();
+        $("#response").keypress(function(event) {
+            var c = String.fromCharCode(event.which);
+
+            if (!event.shiftKey) {
+                c = c.toLowerCase();
+            }
+
+            var resp_val = $("#response").val() + c;
+            responses.push([nowUTC(), resp_val]);
+        });
+
+        // Start of trial
+        responses.push([nowUTC(), ""]);
+    });
+
+    window.onbeforeunload = function () {
+        if (!finished) {
+            return "Are you sure? You will not be able to complete the experiment.";
+        }
+    }
+</script>
+
+{% endblock %}

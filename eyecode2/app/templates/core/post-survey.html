@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h1>Post-Survey</h1>
+
+<p>You're almost done! Please answer a few questions below about the
+experiment.</p>
+
+<form id="form1" action="finish" method="post">
+
+    <h3>Difficulty and Confidence</h3>
+    <div class="form-group">
+        <label class="control-label">How difficult do you feel the programs were?</label>
+        <div class="radio">
+            <label>
+                <input type="radio" id="difficulty-easy" name="difficulty" value="easy" />Easy
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" id="difficulty-medium" name="difficulty" value="medium" />Medium
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" id="difficulty-hard" name="difficulty" value="hard" />Hard
+            </label>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="form-group">
+        <label class="control-label">How many of the programs do you think you answered <span class="text-success">correctly</span>?</label>
+        <div class="radio">
+            <label>
+                <input type="radio" id="guest_correct-few" name="guest_correct" value="few" />Less than half
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" id="guest_correct-half" name="guest_correct" value="half" />About half
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" id="guest_correct-most" name="guest_correct" value="most" />More than half
+            </label>
+        </div>
+    </div>
+
+    <hr />
+
+    <h3>Feedback</h3>
+    <div class="form-group">
+        <label for="feedback" class="control-label">Let us know what you thought of the experiment!</label>
+        <textarea id="feedback" name="feedback" class="form-control" rows="10" placeholder="Your feedback"></textarea>
+    </div>
+
+    <hr />
+    <input type="submit" class="btn btn-success" value="Finish Experiment" />
+    <br />
+    <br />
+</form>
+
+<script type="text/javascript">
+    $("#form1").validate({
+        rules: {
+            difficulty: { required: true },
+            guest_correct: { required: true },
+        },
+        errorPlacement: function(error, element) {
+            if (element.parent('.input-group').length || element.prop('type') === 'checkbox' || element.prop('type') === 'radio') {
+                error.insertBefore(element.parent());
+            } else {
+                error.insertAfter(element);
+            }
+        }
+    });
+</script>
+
+{% endblock %}
