@@ -1,4 +1,4 @@
-import time
+import os, time
 from datetime import datetime
 from sqlalchemy import Column, Integer, BigInteger, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, backref

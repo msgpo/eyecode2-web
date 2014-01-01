@@ -6,3 +6,5 @@ local
 share
 tmp
 Session.vim
+build
+public

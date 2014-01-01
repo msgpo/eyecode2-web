@@ -1,8 +1,8 @@
 import os
 _basedir = os.path.abspath(os.path.dirname(__file__))
 
-DEBUG = False
-TESTING = False
+DEBUG = True
+TESTING = True
 
 ADMINS = frozenset(['mihansen@indiana.edu'])
 SECRET_KEY = 'cudr6tacasWeStekafegerehu'

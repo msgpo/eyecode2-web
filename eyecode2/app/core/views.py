@@ -21,8 +21,10 @@ PROGRAM_OUTPUT_DIR = os.path.join("programs", "output")
 def fname_noext(path):
     return os.path.splitext(os.path.split(path)[1])[0]
 
-program_output = { fname_noext(p): open(p, "r").read()
-                   for p in glob(os.path.join(PROGRAM_OUTPUT_DIR, "*.txt")) }
+program_output = {}
+
+for p in glob(os.path.join(PROGRAM_OUTPUT_DIR, "*.txt")):
+    program_output[fname_noext(p)] = open(p, "r").read()
 
 def get_experiment():
     assert "experiment_id" in session
