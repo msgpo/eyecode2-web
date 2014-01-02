@@ -6,7 +6,10 @@ between_functions:
 	$(RENDER) programs/between_functions.py/main.py --header "main.py" --height 350 $(IMAGES)/between_functions-main.png
 	convert $(IMAGES)/between_functions-helpers.png $(IMAGES)/between_functions-main.png -append $(IMAGES)/between_functions.png
 
-render:
+whitespace_highlight:
+	$(RENDER) programs/whitespace_normal.py --colors "programs/whitespace_highlight.txt" $(IMAGES)/whitespace_highlight.png
+
+render: between_functions whitespace_highlight
 	$(RENDER) programs/between_inline.py $(IMAGES)/between_inline.png
 	$(RENDER) programs/basketball_iterative.py $(IMAGES)/basketball_iterative.png
 	$(RENDER) programs/basketball_recursive.py $(IMAGES)/basketball_recursive.png

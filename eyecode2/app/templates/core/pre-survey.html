@@ -7,6 +7,14 @@
 answer a few questions about yourself.</p>
 
 <form id="form1" action="experiment" method="post">
+    <!-- Mechanical Turk pass-through -->
+    {% if worker_id %}
+    <input type="hidden" name="worker_id" value="{{ worker_id }}" />
+    <input type="hidden" name="hit_id" value="{{ hit_id }}" />
+    <input type="hidden" name="assignment_id" value="{{ assignment_id }}" />
+    <input type="hidden" name="submit_to" value="{{ submit_to }}" />
+    {% endif %}
+
     <h3>Age and Gender</h3>
     <div class="form-group">
         <label for="age" class="control-label">How old are you?</label>

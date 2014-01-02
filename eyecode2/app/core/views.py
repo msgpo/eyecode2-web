@@ -69,8 +69,8 @@ QUAL_CORRECT = {
 def qualification():
     if request.method == "POST":
         # Submitting answers
-        assert "worker_id" in request.form
-        worker_id = request.form["worker_id"]
+        assert "worker_id" in session
+        worker_id = session["worker_id"]
         assert len(worker_id) > 0
 
         # Check for duplicate response
@@ -79,9 +79,9 @@ def qualification():
         assert qr.ended is None and qr.result is None, "Already submitted"
         qr.ended = datetime.now()
 
-        # Check time limit and answers
         result = "pass"
 
+        # Check time limit and answers
         qual_sec = (qr.ended - qr.started).total_seconds()
         if qual_sec > (QUAL_MINUTES * 60):
             result = "timeout"
@@ -92,37 +92,47 @@ def qualification():
                 answer = int(request.form[q])
                 if answer != QUAL_CORRECT[q]:
                     result = "fail"
-                    print q, answer, QUAL_CORRECT[q]
                     break
 
         # Save result
         qr.result = result
         db.session.commit()
 
+        session.clear()
         return render_template("core/qual-results.html", result=result)
     else:
         # Taking test
         assert "worker_id" in request.args
         worker_id = request.args["worker_id"]
+        session["worker_id"] = worker_id
+
+        # Look up or create qualification
         qr = QualificationResults.query.filter(QualificationResults.worker_id == worker_id).first()
         if qr is None:
             # Create qualification result
             qr = QualificationResults(worker_id, "python", datetime.now())
             db.session.add(qr)
             db.session.commit()
+        elif qr.result is not None:
+            # Test already taken
+            flash("You have already taken the test! Result: {0}".format(qr.result),
+                category="info")
+            return render_template("core/empty.html")
 
         qual_max_time = timedelta(minutes=QUAL_MINUTES)
         time_left = qual_max_time - (datetime.now() - qr.started)
 
+        # Check time limit
         if time_left.total_seconds() < 0:
             flash("Time limit has been exceeded. You will not be able to complete the experiment.",
                 category="danger")
-            min_left, sec_left = 0, 0
+            return render_template("core/empty.html")
         else:
+            # Calculate time remaining
             min_left = int(time_left.total_seconds() / 60)
             sec_left = int((time_left - timedelta(seconds=min_left * 60)).total_seconds())
 
-        # Randomize question and answer orders
+        # Randomize question and answer order
         q_names = shuffled(QUAL_QUESTIONS.keys())
         q_answers = { k : list(shuffled(enumerate(v))) for k, v in QUAL_ANSWERS.iteritems() }
         return render_template("core/qualification.html", q_names=q_names,
@@ -133,12 +143,31 @@ def qualification():
 
 @mod.route("/")
 def index():
-    return render_template("core/consent.html")
+    if "worker_id" in request.values:
+        # User is from Mechanical Turk
+        worker_id = request.values["worker_id"]
+        hit_id = request.values["hit_id"]
+        submit_to = request.values["submit_to"]
+        assignment_id = request.values["assignment_id"]
+        return render_template("core/consent.html", worker_id=worker_id,
+            hit_id=hit_id, submit_to=submit_to, assignment_id=assignment_id)
+    else:
+        return render_template("core/consent.html")
 
-@mod.route("/pre-survey")
+@mod.route("/pre-survey", methods=["GET", "POST"])
 def pre_survey():
     session.clear()
-    return render_template("core/pre-survey.html", langs=PROG_LANGUAGES)
+    if "worker_id" in request.values:
+        # User is from Mechanical Turk
+        worker_id = request.values["worker_id"]
+        hit_id = request.values["hit_id"]
+        submit_to = request.values["submit_to"]
+        assignment_id = request.values["assignment_id"]
+        return render_template("core/pre-survey.html", langs=PROG_LANGUAGES,
+            worker_id=worker_id, hit_id=hit_id, submit_to=submit_to,
+            assignment_id=assignment_id)
+    else:
+        return render_template("core/pre-survey.html", langs=PROG_LANGUAGES)
 
 @mod.route("/post-survey")
 def post_survey():
@@ -148,11 +177,6 @@ def post_survey():
 
 @mod.route("/experiment", methods=["GET", "POST"])
 def experiment():
-    # DEBUG
-    #if "xxyx" in request.form:
-        #session["experiment_id"] = int(request.form["xxyx"])
-    # DEBUG
-
     exp_max_time = timedelta(minutes=EXPERIMENT_MINUTES)
     time_left = exp_max_time
 
@@ -162,6 +186,15 @@ def experiment():
         exp.started = datetime.now()
         exp.user_agent = request.headers.get("User-Agent")
         exp.remote_ip = request.remote_addr
+
+        if "worker_id" in request.form:
+            # User is from Mechanical Turk
+            exp.mt_worker_id = request.form["worker_id"]
+            exp.mt_hit_id = request.form["hit_id"]
+            exp.mt_submit_to = request.form["submit_to"]
+            exp.mt_assignment_id = request.form["assignment_id"]
+            exp.mt_approved = False
+
         db.session.add(exp)
 
         # Create trials (random order, random version)
@@ -238,7 +271,13 @@ def trial():
     session["trial_id"] = trial.id
     image_path = "img/{0}_{1}.png".format(trial.program_base, trial.program_version)
 
-    return render_template("core/trial.html", trial=trial, image_path=image_path)
+    return render_template("core/trial.html", image_path=image_path)
+
+@mod.route("/trial_test")
+def trial_test():
+    base, version = request.args["b"], request.args["v"]
+    image_path = "img/{0}_{1}.png".format(base, version)
+    return render_template("core/trial.html", image_path=image_path)
 
 @mod.route("/finish", methods=["POST"])
 def finish():

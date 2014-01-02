@@ -12,6 +12,9 @@
 </div>
 {% endif %}
 
+<h2>Your Performance</h2>
+<p>Our automated grading system has examined your answers. Here's what we found.</p>
+
 <div class="col-xs-5">
     <ul class="list-group">
     {% for t in exp.trials %}
@@ -39,7 +42,7 @@
     <span class="label label-default">values</span> - correct modulo lines/formatting
     <br />
     <br />
-    <span class="label label-warning">manual</span> - need to grade by hand
+    <span class="label label-warning">manual</span> - we need to grade by hand
 </div>
 
 {% endblock %}

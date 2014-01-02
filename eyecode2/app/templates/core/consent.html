@@ -39,7 +39,16 @@
 <p>
     <img src="{{ url_for('static', filename='img/consent_irb.png') }}" width="200px" />
 </p>
-<a id="consent_button" href="#" class="btn btn-primary" disabled="disabled">Continue</a>
+<form action="pre-survey" method="post">
+    <!-- Mechanical Turk pass-through -->
+    {% if worker_id %}
+    <input type="hidden" name="worker_id" value="{{ worker_id }}" />
+    <input type="hidden" name="hit_id" value="{{ hit_id }}" />
+    <input type="hidden" name="assignment_id" value="{{ assignment_id }}" />
+    <input type="hidden" name="submit_to" value="{{ submit_to }}" />
+    {% endif %}
+    <input type="submit" id="consent_button" class="btn btn-primary" value="Continue" disabled="disabled" />
+</form>
 <br />
 <br />
 
@@ -49,11 +58,9 @@
         $("#consent_checkbox").change(function() {
             if (this.checked) {
                 $("#consent_button").removeAttr("disabled");
-                $("#consent_button").attr("href", "pre-survey");
             }
             else {
                 $("#consent_button").attr("disabled", "disabled");
-                $("#consent_button").attr("href", "#");
             }
         });
     });

@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>eyeCode - Landing Page</title>
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script src="js/mmturkey.js"></script>
+</head>
+<body style="margin-left: 10px;">
+    <h1 style="margin: 0; padding: 0; display:inline-block;">eyeC&#9679;de</h1>
+    <span style="font-size: 1.15em; font-weight: normal; margin-left: 5px; vertical-align: middle;">[hacking for science]</span>
+    <hr />
+
+    <h2>The Experiment</h2>
+    <p>
+        This study is being conducted by the <a href="http://cognitrn.psych.indiana.edu/">Percepts and Concepts Laboratory</a> in the Cognitive Science Program at Indiana University. We conduct experiments on how people acquire conceptual knowledge and how conceptual knowledge impacts perception.
+    </p>
+    <p>
+        If you agree to participate, you will be asked to predict the output of <b>10 simple Python programs</b>. There is a brief survey before the experiment with questions about your gender, age, education level, and programming experience.
+    </p>
+
+    <h2>Requirements</h2>
+    <p>
+    You must be able to <b>read and understand simple Python programs</b> (ifs, loops, functions, basic classes). You may also only complete this experiment once.
+    </p>
+
+    <h2>What to do</h2>
+    <ol style="line-height: 2em;">
+        <li>
+            <a id="link_quals" href="#" target="_blank">Take the qualification test (required)</a>.
+        </li>
+        <li>
+            <a id="link_exp" href="#" target="_blank">Visit the experiment website</a>.
+        </li>
+        <li>
+            Complete the survey and experiment (10 programs).
+        </li>
+        <li>
+            Copy your confirmation code here: <input style="width: 150px;" type="text" id="confirmCode" />
+        <li>
+            Click <input type="button" value="Submit" onclick="doSubmit()" />
+        </li>
+    </ol>
+
+    <p>
+        This HIT should take around 45 minutes to complete - most people will finish faster. For participating in this study, you will receive a small payment of $0.50.
+    </p>
+    <p>
+        If you want to participate, please click "Accept this HIT" at the top or bottom of your screen, and then click the link to start the qualification test. If you have any questions, contact the researchers at percepts.concepts+mtinfo@gmail.com.
+    </p>
+
+    <h2>Preview Screen</h2>
+    <img src="img/preview.jpg" />
+
+    <script type="text/javascript">
+        $(function() {
+          if (turk.previewMode) {
+            $("#link1").click(function() {
+              alert("You must accept this HIT to continue!");
+              return false;
+            });
+          }
+          else {
+            params = {
+                worker_id: turk.workerId
+            };
+
+            $("#link_quals").attr("href", "http://experiment.synesthesiam.com/qualification?" + $.param(params));
+
+            params = {
+                worker_id: turk.workerId,
+                hit_id: turk.hitId,
+                assignment_id: turk.assignmentId,
+                submit_to: turk.turkSubmitTo
+            };
+
+            $("#link_exp").attr("href", "http://experiment.synesthesiam.com/?" + $.param(params));
+          }
+        });
+
+        function doSubmit() {
+            if (turk.previewMode) {
+                alert("You must accept this HIT to continue!");
+                return;
+            }
+
+            code = $("#confirmCode").val();
+
+            if (code.length == 13) {
+                turk.submit({ confirmCode: code}, true);
+            }
+            else {
+                alert("Please enter your confirmation code");
+            }
+        }
+    </script>
+</body>
+</html>
