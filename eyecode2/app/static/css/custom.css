@@ -51,3 +51,7 @@ div.content {
 span.code {
     font-family: monospace;
 }
+
+.dl-horizontal dt {
+    text-align: left;
+}

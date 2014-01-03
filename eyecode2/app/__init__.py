@@ -47,6 +47,9 @@ class Experiment(db.Model):
     def trials_completed(self):
         return all(t.started is not None for t in self.trials)
 
+    def completed(self):
+        return self.trials_completed() and self.ended is not None
+
     def mt_code(self):
         timestamp = int(time.mktime(self.started.timetuple()))
         code = (timestamp * self.id) ^ timestamp
@@ -121,6 +124,9 @@ class Trial(db.Model):
             return "java"
 
         raise ValueError("Unsupported language {0}".format(self.language))
+
+    def completed(self):
+        return self.started is not None and self.ended is not None
 
 # --------------------------------------------------
 

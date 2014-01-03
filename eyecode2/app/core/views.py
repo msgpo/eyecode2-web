@@ -308,3 +308,27 @@ def finish():
 
     session.clear()
     return render_template("core/finish.html", exp=exp)
+
+@mod.route("/admin")
+def admin():
+    if "admin" not in session:
+        assert "p" in request.args and request.args["p"] == "grover"
+        session["admin"] = True
+
+    exps = Experiment.query.order_by(Experiment.started.desc()).all()
+    return render_template("core/admin.html", exps=exps)
+
+@mod.route("/approve")
+def approve():
+    assert "admin" in session and "id" in request.args
+    exp = Experiment.query.get(int(request.args["id"]))
+    assert exp.is_mt()
+    exp.mt_approved = True
+    flash("Experiment {0} approved".format(exp.id), category="info")
+    return redirect(url_for("core.admin"))
+
+@mod.route("/details")
+def details():
+    assert "admin" in session and "id" in request.args
+    exp = Experiment.query.get(int(request.args["id"]))
+    return render_template("core/details.html", exp=exp)

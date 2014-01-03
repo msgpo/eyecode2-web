@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h1>Admin</h1>
+
+<div class="col-xs-6">
+    <ul class="list-group">
+    {% for e in exps %}
+    <li class="list-group-item">Experiment {{ e.id }}
+    <a target="_blank" href="details?id={{ e.id }}" class="btn btn-default pull-right" style="margin-left: 10px;">Details</a>
+
+    {% if not e.completed() %}
+    <span class="label label-danger pull-right" style="margin-left: 10px;">unfinished</span>
+    {% endif %}
+    
+    <!-- Mechanical Turk -->
+    {% if e.is_mt() %}
+
+    {% if e.mt_approved %}
+    <span class="label label-success pull-right" style="margin-left: 10px;">approved</span>
+    {% else %}
+    <a href="approve?id={{ e.id }}" class="btn btn-success pull-right" style="margin-left: 10px;">Approve</a>
+    {% endif %}
+
+    <span class="label label-info pull-right">turk</span>
+    {% endif %}
+    <br style="clear: both;" />
+    </li>
+    {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

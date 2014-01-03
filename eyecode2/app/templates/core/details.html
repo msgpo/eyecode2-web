@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h1>Experiment {{ exp.id }}</h1>
+
+{% if not exp.completed() %}
+<span class="label label-danger">unfinished</span>
+{% endif %}
+
+{% if exp.is_mt() %}
+<span class="label label-info">turk</span>
+
+{% if exp.mt_approved %}
+<span class="label label-success">approved</span>
+{% else %}
+<span class="label label-warning">not approved</span>
+{% endif %}
+
+{% endif %}
+
+<dl class="dl-horizontal">
+    {% if exp.started %}
+    <dt>Started</dt>
+    <dd>{{ exp.started }}</dd>
+    {% endif %}
+
+    {% if exp.ended %}
+    <dt>Ended</dt>
+    <dd>{{ exp.ended }} ({{ exp.ended - exp.started }})</dd>
+    {% endif %}
+
+    {% if exp.is_mt() %}
+    <dt>Worker ID</dt>
+    <dd>{{ exp.mt_worker_id }}</dd>
+
+    <dt>HIT ID</dt>
+    <dd>{{ exp.mt_hit_id }}</dd>
+
+    <dt>Code</dt>
+    <dd>{{ exp.mt_code() }}</dd>
+    {% endif %}
+</dl>
+
+<hr />
+
+<h2>Trials</h2>
+{% for t in exp.trials %}
+<h4>Trial {{ loop.index}} (#{{ t.id }})</h4>
+
+{% if not t.completed() %}
+<span class="label label-danger">unfinished</span>
+{% elif t.response_grade %}
+<span class="label label-info">{{ t.response_grade }}</span>
+{% endif %}
+
+<dl class="dl-horizontal">
+  <dt>Program<dt>
+  <dd>{{ t.program_base}} {{ t.program_version }} (<a href="{{ url_for('static', filename='img/'+t.program_base+'_'+t.program_version+'.png') }}">image</a>)</dd>
+
+  {% if t.started %}
+  <dt>Started</dt>
+  <dd>{{ t.started }}</dd>
+  {% endif %}
+
+  {% if t.ended %}
+  <dt>Ended</dt>
+  <dd>{{ t.ended }} ({{ t.ended - t.started }})</dd>
+  {% endif %}
+</dl>
+
+{% if t.response %}
+<textarea cols="35" rows="8">{{ t.response }}</textarea>
+{% endif %}
+<hr />
+
+{% endfor %}
+
+{% endblock %}
