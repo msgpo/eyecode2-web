@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship, backref
 
 from flask import Flask, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.basicauth import BasicAuth
 
 app = Flask(__name__)
 app.config.from_object("app.config")
@@ -13,6 +14,7 @@ if "EYECODE2_CONFIG" in os.environ:
     app.config.from_envvar("EYECODE2_CONFIG")
 
 db = SQLAlchemy(app)
+basic_auth = BasicAuth(app)
 
 # --------------------------------------------------
 

@@ -3,7 +3,7 @@ from glob import glob
 from datetime import datetime, timedelta
 from flask import Blueprint, request, render_template, flash, g, session, redirect, url_for, \
                   abort, jsonify
-from .. import db, Experiment, Trial, TestAnswer, TrialResponse, QualificationResults, program_versions, program_bases
+from .. import db, Experiment, Trial, TestAnswer, TrialResponse, QualificationResults, program_versions, program_bases, basic_auth
 from grading import grade_string
 
 # ----------------------------------------------------------------------------
@@ -319,11 +319,12 @@ def finish():
     session.clear()
     return render_template("core/finish.html", exp=exp, grade_category=grade_category)
 
+# ----------------------------------------------------------------------------
+
 @mod.route("/admin")
+@basic_auth.required
 def admin():
-    if "admin" not in session:
-        assert "p" in request.args and request.args["p"] == "grover"
-        session["admin"] = True
+    session["admin"] = True
 
     # All experiments
     exps = Experiment.query.order_by(Experiment.started.desc()).all()
