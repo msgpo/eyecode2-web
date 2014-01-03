@@ -1,4 +1,4 @@
-import argparse
+import argparse, re
 from PIL import Image, ImageFont, ImageDraw
 
 if __name__ == "__main__":
@@ -33,6 +33,7 @@ if __name__ == "__main__":
     line_height = args.fontsize + args.lineoffset
     header = False
     colors = None
+    id_regex = re.compile("[a-zA-Z_]+|[+*=]")
 
     if len(args.colors) > 0:
         colors = [line.rstrip() for line in open(args.colors, "r")]
@@ -59,7 +60,8 @@ if __name__ == "__main__":
                     draw.text((args.xoffset, y_offset), line, black, font=font)
                 else:
                     x = args.xoffset
-                    for word, w_colors in zip(line.split(" "), color_line.split(" ")):
+                    print id_regex.split(line)
+                    for word, w_colors in zip(id_regex.split(line), color_line.split(" ")):
                         color = w_colors[0]
                         if color in color_map:
                             draw.text((x, y_offset), word, color_map[color], font=font)

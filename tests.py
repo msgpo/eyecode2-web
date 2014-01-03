@@ -3,7 +3,7 @@ sys.path.append(os.getcwd())
 sys.path.append('eyecode2')
 
 os.environ["EYECODE2_CONFIG"] = "test.cfg"
-from eyecode2.app import app, db, Experiment, Trial
+from eyecode2.app import app, db, Experiment, Trial, program_versions
 import flask
 import unittest
 import tempfile
@@ -84,6 +84,14 @@ class EyecodeTestCases(unittest.TestCase):
             # Experiment should be done
             exp = Experiment.query.get(exp_id)
             assert exp.ended is not None
+
+    def test_images(self):
+        # Make sure an image exists for every base/version
+        image_dir = os.path.join("eyecode2", "app", "static", "img")
+        for b, vs in program_versions.iteritems():
+            for v in vs:
+                image_path = os.path.join(image_dir, "{0}_{1}.png".format(b, v))
+                assert os.path.exists(image_path), image_path
 
 
 if __name__ == '__main__':
