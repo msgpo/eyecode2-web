@@ -4,6 +4,7 @@
 <h1>Thank You!</h1>
 
 <p>Thank you for completing the experiment.</p>
+<p>Your responses will help us to better understand what makes code psychologically complex.</p>
 
 {% if exp.is_mt() %}
 <div class="well">
@@ -12,7 +13,7 @@
 </div>
 {% endif %}
 
-<h2>Your Performance</h2>
+<h3>Your Performance</h3>
 <p>Our automated grading system has examined your answers. Here's what we found.</p>
 
 <div class="col-xs-5">
@@ -21,7 +22,7 @@
     <li class="list-group-item">Program {{ loop.index }}
     
     {% if t.response_grade %}
-    <span class="label label-info pull-right">{{ t.response_grade }}</span>
+    <span class="label label-{{ grade_category(t.response_grade) }} pull-right">{{ t.response_grade }}</span>
     {% else %}
     <span class="label label-warning pull-right">manual</span>
     {% endif %}

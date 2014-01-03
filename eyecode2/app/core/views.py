@@ -34,6 +34,16 @@ def get_experiment():
 def shuffled(xs):
     return sorted(xs, key=lambda x: random.random())
 
+def grade_category(g):
+    if g == "exact":
+        return "success"
+    elif g == "lines":
+        return "info"
+    elif g == "values":
+        return "default"
+    else:
+        return "warning"
+
 # ----------------------------------------------------------------------------
 
 QUAL_MINUTES = 5
@@ -307,7 +317,7 @@ def finish():
     db.session.commit()
 
     session.clear()
-    return render_template("core/finish.html", exp=exp)
+    return render_template("core/finish.html", exp=exp, grade_category=grade_category)
 
 @mod.route("/admin")
 def admin():
@@ -315,6 +325,7 @@ def admin():
         assert "p" in request.args and request.args["p"] == "grover"
         session["admin"] = True
 
+    # All experiments
     exps = Experiment.query.order_by(Experiment.started.desc()).all()
     return render_template("core/admin.html", exps=exps)
 
@@ -323,12 +334,18 @@ def approve():
     assert "admin" in session and "id" in request.args
     exp = Experiment.query.get(int(request.args["id"]))
     assert exp.is_mt()
+
+    # Mark experiment as approved
     exp.mt_approved = True
+    db.session.commit()
+
     flash("Experiment {0} approved".format(exp.id), category="info")
     return redirect(url_for("core.admin"))
 
 @mod.route("/details")
 def details():
     assert "admin" in session and "id" in request.args
+
+    # Experiment details
     exp = Experiment.query.get(int(request.args["id"]))
-    return render_template("core/details.html", exp=exp)
+    return render_template("core/details.html", exp=exp, grade_category=grade_category)
