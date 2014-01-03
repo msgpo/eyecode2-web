@@ -15,6 +15,11 @@ PROG_LANGUAGES = sorted(["C", "Java", "PHP", "JavaScript", "C++",
     "Visual Basic", "Haskell", "Lisp", "Erlang",
     "OCaml", "Scheme", "Scala"])
 
+PRE_SURVEY_QS = ["age", "gender", "py_years", "prog_years",
+                 "languages", "lang_used", "degree", "cs_major"]
+
+POST_SURVEY_QS = ["difficulty", "guess_correct", "feedback"]
+
 EXPERIMENT_MINUTES = 45
 PROGRAM_OUTPUT_DIR = os.path.join("programs", "output")
 
@@ -189,11 +194,19 @@ def pre_survey():
         # User is from Mechanical Turk
         worker_id = request.values["worker_id"]
 
+        # Make sure they passed the qualification
         if not check_qualification(worker_id):
             flash("You must pass the qualification test before taking the experiment!",
                 category="danger")
             return render_template("core/empty.html")
 
+        # Make sure they haven't done the experiment before
+        duplicate_exp = Experiment.query.filter(Experiment.mt_worker_id == worker_id).first()
+        if duplicate_exp is not None:
+            flash("You have already started an experiment!", category="danger")
+            return render_template("core/empty.html")
+
+        # Pass MT values through to experiment page
         hit_id = request.values["hit_id"]
         submit_to = request.values["submit_to"]
         assignment_id = request.values["assignment_id"]
@@ -222,8 +235,15 @@ def experiment():
         exp.remote_ip = request.remote_addr
 
         if "worker_id" in request.form:
+            # Make sure user hasn't already taken the experiment
+            worker_id = request.form["worker_id"]
+            duplicate_exp = Experiment.query.filter(Experiment.mt_worker_id == worker_id).first()
+            if duplicate_exp is not None:
+                flash("You have already started an experiment!", category="danger")
+                return render_template("core/empty.html")
+
             # User is from Mechanical Turk
-            exp.mt_worker_id = request.form["worker_id"]
+            exp.mt_worker_id = worker_id
             exp.mt_hit_id = request.form["hit_id"]
             exp.mt_submit_to = request.form["submit_to"]
             exp.mt_assignment_id = request.form["assignment_id"]
@@ -239,9 +259,10 @@ def experiment():
 
         # Add pre survey answers
         languages = request.form.getlist("languages")
-        for k,v in request.form.iteritems():
-            if k != "languages":
-                ta = TestAnswer(None, k, v)
+        for q in PRE_SURVEY_QS:
+            assert q in request.form, "Missing {0}".format(q)
+            if q != "languages":
+                ta = TestAnswer(None, q, request.form[q])
                 exp.test_answers.append(ta)
 
         exp.test_answers.append(TestAnswer(None, "languages", ",".join(languages)))
@@ -323,8 +344,9 @@ def finish():
     assert exp.ended is None, "Experiment has already been completed"
 
     # Add post survey answers
-    for k,v in request.form.iteritems():
-        ta = TestAnswer(exp.id, k, v)
+    for q in POST_SURVEY_QS:
+        assert q in request.form, "Missing {0}".format(q)
+        ta = TestAnswer(exp.id, q, request.form[q])
         db.session.add(ta)
 
     # Complete experiment

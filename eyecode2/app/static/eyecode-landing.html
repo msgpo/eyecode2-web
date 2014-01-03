@@ -86,7 +86,7 @@
 
             code = $("#confirmCode").val();
 
-            if (code.length == 13) {
+            if (code.length > 0) {
                 turk.submit({ confirmCode: code}, true);
             }
             else {
