@@ -27,7 +27,7 @@ for p in glob(os.path.join(PROGRAM_OUTPUT_DIR, "*.txt")):
     program_output[fname_noext(p)] = open(p, "r").read()
 
 def get_experiment():
-    assert "experiment_id" in session
+    assert "experiment_id" in session, "Missing experiment id"
     exp_id = int(session["experiment_id"])
     return Experiment.query.get(exp_id)
 
@@ -44,6 +44,10 @@ def grade_category(g):
     else:
         return "warning"
 
+def check_qualification(worker_id):
+    qr = QualificationResults.query.filter(QualificationResults.worker_id == worker_id).first()
+    return qr is not None and qr.result == "pass"
+
 # ----------------------------------------------------------------------------
 
 QUAL_MINUTES = 5
@@ -57,14 +61,22 @@ QUAL_QUESTIONS = {
 
 QUAL_ANSWERS = {
     "Variables": ["int x = 7", "x = 7", "x <- 7", "x == 7"],
-    "Functions": ["f(x: int): int =<br />&nbsp;&nbsp;return x + 1", "def f(x):<br />return x + 1", "int f(int x) {<br />&nbsp;&nbsp;&nbsp;&nbsp;return x + 1;<br />}", "def f(x):<br />&nbsp;&nbsp;&nbsp;&nbspreturn x + 1"],
-    "Printing": ["System.out.println(\"hello\", \"hello\");", "print \"hello\"<br />print \"hello\"", "System.out.println(\"hello\");<br />System.out.println(\"hello\");", "print \"hello\", \"hello\""],
-    "Lists": ["x = []<br />x.append(5)", "x = new list()<br />x.add(5)", "ArrayList x;<br />x.add(5);", "ArrayList x = new ArrayList();<br />x.add(5);"],
+    "Functions": ["f(x: int): int =<br />&nbsp;&nbsp;return x + 1",
+                  "def f(x):<br />return x + 1",
+                  "int f(int x) {<br />&nbsp;&nbsp;&nbsp;&nbsp;return x + 1;<br />}",
+                 "def f(x):<br />&nbsp;&nbsp;&nbsp;&nbspreturn x + 1"],
+    "Printing": ["System.out.println(\"hello\", \"hello\");",
+                 "print \"hello\"<br />print \"hello\"",
+                 "System.out.println(\"hello\");<br />System.out.println(\"hello\");",
+                 "print \"hello\", \"hello\""],
+    "Lists": ["x = []<br />x.append(5)",
+              "x = new list()<br />x.add(5)",
+              "ArrayList x;<br />x.add(5);",
+              "ArrayList x = new ArrayList();<br />x.add(5);"],
     "Loops": ["for x in [1, 2, 3]:<br />&nbsp;&nbsp;&nbsp;&nbsp;print x",
-             "int[] list = new int[] { 1, 2, 3 };<br />for (int i = 0; i < list.length; i++)<br />&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(x[i]);",
-             "foreach (x: int in [1, 2, 3])<br />&nbsp;&nbsp;&nbsp;&nbsp;print x",
-             "int[] list = new int[] { 1, 2, 3 };<br />list.each(x => System.out.println(x));"
-            ]
+              "int[] list = new int[] { 1, 2, 3 };<br />for (int i = 0; i < list.length; i++)<br />&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(x[i]);",
+              "foreach (x: int in [1, 2, 3])<br />&nbsp;&nbsp;&nbsp;&nbsp;print x",
+              "int[] list = new int[] { 1, 2, 3 };<br />list.each(x => System.out.println(x));"]
 }
 
 QUAL_CORRECT = {
@@ -79,9 +91,9 @@ QUAL_CORRECT = {
 def qualification():
     if request.method == "POST":
         # Submitting answers
-        assert "worker_id" in session
+        assert "worker_id" in session, "Missing worker id"
         worker_id = session["worker_id"]
-        assert len(worker_id) > 0
+        assert len(worker_id) > 0, "Empty worker id"
 
         # Check for duplicate response
         qr = QualificationResults.query.filter(QualificationResults.worker_id == worker_id).first()
@@ -98,7 +110,7 @@ def qualification():
         else:
             # Check answers
             for q in QUAL_QUESTIONS.keys():
-                assert q in request.form
+                assert q in request.form, "Missing question {0}".format(q)
                 answer = int(request.form[q])
                 if answer != QUAL_CORRECT[q]:
                     result = "fail"
@@ -112,7 +124,7 @@ def qualification():
         return render_template("core/qual-results.html", result=result)
     else:
         # Taking test
-        assert "worker_id" in request.args
+        assert "worker_id" in request.args, "Missing worker id"
         worker_id = request.args["worker_id"]
         session["worker_id"] = worker_id
 
@@ -156,6 +168,12 @@ def index():
     if "worker_id" in request.values:
         # User is from Mechanical Turk
         worker_id = request.values["worker_id"]
+
+        if not check_qualification(worker_id):
+            flash("You must pass the qualification test before taking the experiment!",
+                category="danger")
+            return render_template("core/empty.html")
+
         hit_id = request.values["hit_id"]
         submit_to = request.values["submit_to"]
         assignment_id = request.values["assignment_id"]
@@ -170,6 +188,12 @@ def pre_survey():
     if "worker_id" in request.values:
         # User is from Mechanical Turk
         worker_id = request.values["worker_id"]
+
+        if not check_qualification(worker_id):
+            flash("You must pass the qualification test before taking the experiment!",
+                category="danger")
+            return render_template("core/empty.html")
+
         hit_id = request.values["hit_id"]
         submit_to = request.values["submit_to"]
         assignment_id = request.values["assignment_id"]
@@ -230,7 +254,11 @@ def experiment():
         assert exp.started is not None, "Experiment was not started"
 
         exp_time = datetime.now() - exp.started
-        assert exp_time < exp_max_time, "No more time for experiment"
+        if exp_time > exp_max_time:
+           flash("You have exceeded the maximum amount of time for the experiment.",
+                   category="danger")
+           return render_template("core/empty.html")
+
         time_left = exp_max_time - exp_time
 
         if "trial_id" in session:
@@ -332,9 +360,9 @@ def admin():
 
 @mod.route("/approve")
 def approve():
-    assert "admin" in session and "id" in request.args
+    assert "admin" in session and "id" in request.args, "Not logged in or missing id"
     exp = Experiment.query.get(int(request.args["id"]))
-    assert exp.is_mt()
+    assert exp.is_mt(), "Not a Mechanical Turk experiment"
 
     # Mark experiment as approved
     exp.mt_approved = True
@@ -345,8 +373,9 @@ def approve():
 
 @mod.route("/details")
 def details():
-    assert "admin" in session and "id" in request.args
+    assert "admin" in session and "id" in request.args, "Not logged in or missing id"
 
     # Experiment details
     exp = Experiment.query.get(int(request.args["id"]))
     return render_template("core/details.html", exp=exp, grade_category=grade_category)
+

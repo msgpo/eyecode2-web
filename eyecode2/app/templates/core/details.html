@@ -43,6 +43,17 @@
 
 <hr />
 
+<h2>Surveys</h2>
+
+<dl class="dl-horizontal">
+    {% for ta in exp.test_answers %}
+    <dt>{{ ta.question }}</dt>
+    <dd>{{ ta.answer }}</dd>
+    {% endfor %}
+</dl>
+
+<hr />
+
 <h2>Trials</h2>
 {% for t in exp.trials %}
 <h4>Trial {{ loop.index}} (#{{ t.id }})</h4>
