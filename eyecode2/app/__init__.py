@@ -179,6 +179,7 @@ class QualificationResults(db.Model):
 # --------------------------------------------------
 
 program_versions = {
+    "boolean"    : ["easy", "hard"],
     "basketball" : ["iterative", "recursive"],
     "between"    : ["functions", "inline"],
     "counting"   : ["done", "other"],

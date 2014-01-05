@@ -10,6 +10,8 @@ render: between_functions
 	$(RENDER) programs/between_inline.py $(IMAGES)/between_inline.png
 	$(RENDER) programs/basketball_iterative.py $(IMAGES)/basketball_iterative.png
 	$(RENDER) programs/basketball_recursive.py $(IMAGES)/basketball_recursive.png
+	$(RENDER) programs/boolean_easy.py $(IMAGES)/boolean_easy.png
+	$(RENDER) programs/boolean_hard.py $(IMAGES)/boolean_hard.png
 	$(RENDER) programs/counting_done.py $(IMAGES)/counting_done.png
 	$(RENDER) programs/counting_other.py $(IMAGES)/counting_other.png
 	$(RENDER) programs/order_inorder.py $(IMAGES)/order_inorder.png
