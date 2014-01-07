@@ -20,7 +20,7 @@ PRE_SURVEY_QS = ["age", "gender", "py_years", "prog_years",
 
 POST_SURVEY_QS = ["difficulty", "guess_correct", "feedback"]
 
-EXPERIMENT_MINUTES = 45
+EXPERIMENT_MINUTES = 30
 PROGRAM_OUTPUT_DIR = os.path.join("programs", "output")
 
 def fname_noext(path):
