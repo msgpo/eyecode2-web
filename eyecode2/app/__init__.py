@@ -179,11 +179,12 @@ class QualificationResults(db.Model):
 # --------------------------------------------------
 
 program_versions = {
-    "boolean"    : ["easy", "hard"],
+    #"boolean"    : ["easy", "hard"],
     "basketball" : ["iterative", "recursive"],
     "between"    : ["functions", "inline"],
     "counting"   : ["done", "other"],
     "order"      : ["inorder", "shuffled"],
+    "nanotech"   : ["comments", "nocomments"],
     "overload"   : ["numbers", "words"],
     "rectangle"  : ["long", "short"],
     "scope"      : ["justreturn", "noreturn", "return"],

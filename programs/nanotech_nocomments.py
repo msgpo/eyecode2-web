@@ -8,6 +8,7 @@ formulas = {
 counts = {}
 for name, molecule in formulas.iteritems():
     number = None
+    limit = 0
     for atom in molecule:
         required = molecule[atom]
         available = inventory.get(atom, 0)

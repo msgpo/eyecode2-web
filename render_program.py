@@ -16,7 +16,7 @@ if __name__ == "__main__":
     parser.add_argument("--colors", type=str, default="")
     args = parser.parse_args()
 
-    program_lines = [line.rstrip() for line in open(args.program_path, "r") if not line.strip().startswith("#")]
+    program_lines = [line.rstrip() for line in open(args.program_path, "r")]
 
     white  = (255, 255, 255)
     black  = (0, 0, 0)

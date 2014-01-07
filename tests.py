@@ -4,12 +4,16 @@ sys.path.append('eyecode2')
 
 os.environ["EYECODE2_CONFIG"] = "test.cfg"
 from eyecode2.app import app, db, Experiment, Trial, program_versions
-import flask
-import unittest
-import tempfile
+import flask, unittest, tempfile, subprocess
+from glob import glob
 
 NUM_PROGRAMS = 8
 DB_PATH = "/tmp/eyecode2_test.db"
+
+def execfile_output(path):
+    return subprocess.check_output(["python", path])
+
+# ----------------------------------------------------------------------------
 
 class EyecodeTestCases(unittest.TestCase):
 
@@ -93,6 +97,28 @@ class EyecodeTestCases(unittest.TestCase):
                 image_path = os.path.join(image_dir, "{0}_{1}.png".format(b, v))
                 assert os.path.exists(image_path), image_path
 
+    def test_output(self):
+        base_outputs = {}
+        base_excepts = ["overload", "counting"]
+        for path in glob(os.path.join("programs", "output", "*.py")):
+            file_name = os.path.split(path)[1]
+            if "_" not in file_name:
+                continue
+
+            base = file_name.split("_", 1)[0]
+            if os.path.isdir(path):
+                path = os.path.join(path, "main.py")
+
+            output = execfile_output(path)
+            if base in base_outputs:
+                if base in base_excepts:
+                    assert_equal(len(base_outputs[base]), len(output), path)
+                else:
+                    assert_equal(base_outputs[base], output, path)
+            else:
+                base_outputs[base] = output
+
+# ----------------------------------------------------------------------------
 
 if __name__ == '__main__':
     unittest.main()

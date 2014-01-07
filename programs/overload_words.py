@@ -3,9 +3,17 @@ b = "t"
 print a + b
 
 c = "g"
-d = "a"
-print c + d
+b = "a"
+print b + c
 
-e = "5"
-f = "3"
-print e + f
+a = "t"
+c = "p"
+print c + b
+
+b = "h"
+c = "s"
+print b + a
+
+b = "5"
+a = "3"
+print b + a

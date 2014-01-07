@@ -3,9 +3,17 @@ b = 5
 print a + b
 
 c = 9
-d = 4
-print c + d
+b = 4
+print b + c
 
-e = "5"
-f = "3"
-print e + f
+a = 10
+c = 11
+print c + b
+
+b = 7
+c = 8
+print b + a
+
+b = "5"
+a = "3"
+print b + a
