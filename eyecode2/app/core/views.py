@@ -342,6 +342,7 @@ def trial_test():
 def finish():
     exp = get_experiment()
     assert exp.ended is None, "Experiment has already been completed"
+    print request.form
 
     # Add post survey answers
     for q in POST_SURVEY_QS:
