@@ -10,16 +10,22 @@ formulas = {
 # Determine how many molecules we can
 # make of each kind.
 counts = {}
-for name, molecule in formulas.iteritems():
+for name in sorted(formulas):
+    molecule = formulas[name]
     number = None
-    limit = 0
+    limiting = None
     for atom in molecule:
         required = molecule[atom]
         available = inventory.get(atom, 0)
         limit = available / required
-    if (number is None) or (limit < number):
-        number = limit
+        if (number is None) or (limit < number):
+            number = limit
+            limiting = atom
     counts[name] = number
+
+    # Print molecule name and which atom
+    # is limiting how much # we can make.
+    print name, "limited by", limiting
 
 # Print atom name and count.
 for name in sorted(counts):
