@@ -1,18 +1,18 @@
-def purple(x):
-    return orange(x) * blue(x)
+def swim(x):
+    return fly(x) * jump(x)
 
-def blue(x):
+def jump(x):
     return x * 2
 
-def orange(x):
-    return green(x) + blue(x)
+def fly(x):
+    return skip(x) + jump(x)
 
-def green(x):
+def skip(x):
     return x + 4
 
 x = 1
-a = green(x)
-b = blue(x)
-c = orange(x)
-d = purple(x)
+a = skip(x)
+b = jump(x)
+c = fly(x)
+d = swim(x)
 print a, b, c, d

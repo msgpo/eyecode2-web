@@ -13,7 +13,7 @@ if __name__ == "__main__":
     parser.add_argument("--lineoffset", type=int, default=2)
     parser.add_argument("--baseimage", type=str, default="")
     parser.add_argument("--header", type=str, default="")
-    parser.add_argument("--colors", type=str, default="")
+    parser.add_argument("--line_colors", type=str, default=None)
     args = parser.parse_args()
 
     program_lines = [line.rstrip() for line in open(args.program_path, "r")]
@@ -32,21 +32,18 @@ if __name__ == "__main__":
     y_offset = args.yoffset
     line_height = args.fontsize + args.lineoffset
     header = False
-    colors = None
     id_regex = re.compile("[a-zA-Z_]+|[+*=]")
 
-    if len(args.colors) > 0:
-        colors = [line.rstrip() for line in open(args.colors, "r")]
-    
     if len(args.header) > 0:
         program_lines = [args.header] + program_lines
         header = True
 
-    for line in program_lines:
-        color_line = None
-        if colors is not None:
-            color_line = colors[0]
-            colors = colors[1:]
+    line_colors = []
+    if args.line_colors is not None:
+        import ast
+        line_colors = ast.literal_eval(args.line_colors)
+
+    for line_idx, line in enumerate(program_lines):
         if line.strip():
             if header:
                 draw.rectangle([(0, 0), (args.width, line_height - 2)], fill=black)
@@ -54,18 +51,12 @@ if __name__ == "__main__":
                 draw.text(((args.width / 2) - (size[0] / 2), y_offset), line, white, font=font)
                 header = False
             else:
-                # No header
-                if color_line is None:
-                    # All black text
-                    draw.text((args.xoffset, y_offset), line, black, font=font)
-                else:
-                    x = args.xoffset
-                    print id_regex.split(line)
-                    for word, w_colors in zip(id_regex.split(line), color_line.split(" ")):
-                        color = w_colors[0]
-                        if color in color_map:
-                            draw.text((x, y_offset), word, color_map[color], font=font)
-                        x += draw.textsize(word + " ", font=font)[0]
+                if line_idx < len(line_colors):
+                    lc = line_colors[line_idx]
+                    if len(lc) > 0:
+                        draw.rectangle([(0, y_offset), (args.width, y_offset + line_height - 1)], fill=lc)
+
+                draw.text((args.xoffset, y_offset), line, black, font=font)
             
         # Next line
         y_offset += line_height

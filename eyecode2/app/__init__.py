@@ -180,10 +180,10 @@ class QualificationResults(db.Model):
 
 program_versions = {
     #"boolean"    : ["easy", "hard"],
-    "basketball" : ["iterative", "recursive"],
+    "basketball" : ["iterative", "recursive", "iterative_flipped"],
     "between"    : ["functions", "inline"],
     "counting"   : ["done", "other"],
-    "order"      : ["inorder", "shuffled"],
+    "order"      : ["inorder", "shuffled", "shuffled_colors"],
     "nanotech"   : ["comments", "nocomments"],
     "overload"   : ["numbers", "words"],
     "rectangle"  : ["long", "short"],

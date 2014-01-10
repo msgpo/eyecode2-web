@@ -1,5 +1,3 @@
 qt
-ag
-pa
-ht
+ga
 53

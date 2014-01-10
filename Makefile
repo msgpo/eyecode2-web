@@ -14,6 +14,7 @@ whitespace_nospace_highlight:
 render: between_functions whitespace_nospace_highlight
 	$(RENDER) programs/between_inline.py $(IMAGES)/between_inline.png
 	$(RENDER) programs/basketball_iterative.py $(IMAGES)/basketball_iterative.png
+	$(RENDER) programs/basketball_iterative_flipped.py $(IMAGES)/basketball_iterative_flipped.png
 	$(RENDER) programs/basketball_recursive.py $(IMAGES)/basketball_recursive.png
 	$(RENDER) programs/boolean_easy.py $(IMAGES)/boolean_easy.png
 	$(RENDER) programs/boolean_hard.py $(IMAGES)/boolean_hard.png
@@ -23,6 +24,8 @@ render: between_functions whitespace_nospace_highlight
 	$(RENDER) programs/nanotech_nocomments.py $(IMAGES)/nanotech_nocomments.png
 	$(RENDER) programs/order_inorder.py $(IMAGES)/order_inorder.png
 	$(RENDER) programs/order_shuffled.py $(IMAGES)/order_shuffled.png
+	$(RENDER) programs/order_shuffled.py $(IMAGES)/order_shuffled_colors.png \
+		--line_colors "['#87DE87','#87DE87','','#FFE680','#FFE680','','#80BEFF','#80BEFF','','#DE8787','#DE8787','','#DDAFE9','#DDAFE9','#DDAFE9','#DDAFE9','#DDAFE9','#DDAFE9']"
 	$(RENDER) programs/overload_numbers.py $(IMAGES)/overload_numbers.png
 	$(RENDER) programs/overload_words.py $(IMAGES)/overload_words.png
 	$(RENDER) programs/rectangle_long.py $(IMAGES)/rectangle_long.png
@@ -37,6 +40,7 @@ output:
 	python programs/between_functions.py/main.py > programs/output/between_functions.py.txt
 	python programs/between_inline.py > programs/output/between_inline.py.txt
 	python programs/basketball_iterative.py > programs/output/basketball_iterative.py.txt
+	python programs/basketball_iterative_flipped.py > programs/output/basketball_iterative_flipped.py.txt
 	python programs/basketball_recursive.py > programs/output/basketball_recursive.py.txt
 	python programs/boolean_easy.py > programs/output/boolean_easy.py.txt
 	python programs/boolean_hard.py > programs/output/boolean_hard.py.txt
@@ -59,3 +63,6 @@ output:
 web-images:
 	cp $(IMAGES)/*.png $(WEB_IMAGES)/
 	for f in $(WEB_IMAGES)/*.png; do convert $$f -trim +repage $$f; done
+
+test:
+	nosetests tests.py
