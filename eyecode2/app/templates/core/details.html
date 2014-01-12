@@ -79,9 +79,21 @@
   {% endif %}
 </dl>
 
+<div class="row">
+<div class="col-xs-4">
+    <h4>Predicted Output</h4>
 {% if t.response %}
-<textarea cols="35" rows="8">{{ t.response }}</textarea>
+    <textarea cols="35" rows="8">{{ t.response }}</textarea>
 {% endif %}
+</div>
+
+<div class="col-xs-4">
+    <h4>Actual Output</h4>
+    <textarea cols="35" rows="8">{{ output[(t.program_name())] }}</textarea>
+</div>
+
+</div>
+
 <hr />
 
 {% endfor %}

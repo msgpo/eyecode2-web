@@ -130,6 +130,9 @@ class Trial(db.Model):
     def completed(self):
         return self.started is not None and self.ended is not None
 
+    def program_name(self):
+        return "{0}_{1}".format(self.program_base, self.program_version)
+
 # --------------------------------------------------
 
 class TrialResponse(db.Model):

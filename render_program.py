@@ -14,6 +14,7 @@ if __name__ == "__main__":
     parser.add_argument("--baseimage", type=str, default="")
     parser.add_argument("--header", type=str, default="")
     parser.add_argument("--line_colors", type=str, default=None)
+    parser.add_argument("--bg_color", type=str, default=None)
     args = parser.parse_args()
 
     program_lines = [line.rstrip() for line in open(args.program_path, "r")]
@@ -28,6 +29,9 @@ if __name__ == "__main__":
     image = Image.new("RGBA", (args.width, args.height), white)
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype("fonts/CONSOLA.TTF", args.fontsize)
+
+    if args.bg_color is not None:
+        draw.rectangle([(0, 0), image.size], fill=args.bg_color)
 
     y_offset = args.yoffset
     line_height = args.fontsize + args.lineoffset
@@ -51,12 +55,14 @@ if __name__ == "__main__":
                 draw.text(((args.width / 2) - (size[0] / 2), y_offset), line, white, font=font)
                 header = False
             else:
+                text_color = black
                 if line_idx < len(line_colors):
                     lc = line_colors[line_idx]
                     if len(lc) > 0:
-                        draw.rectangle([(0, y_offset), (args.width, y_offset + line_height - 1)], fill=lc)
+                        #draw.rectangle([(0, y_offset), (args.width, y_offset + line_height - 1)], fill=lc)
+                        text_color = lc
 
-                draw.text((args.xoffset, y_offset), line, black, font=font)
+                draw.text((args.xoffset, y_offset), line, text_color, font=font)
             
         # Next line
         y_offset += line_height

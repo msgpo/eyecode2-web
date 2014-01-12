@@ -11,7 +11,11 @@ whitespace_nospace_highlight:
 	pygmentize -o $(IMAGES)/whitespace_nospace_highlight.png -O style=tango,font_name=Consolas,font_size=19,line_numbers=False,image_pad=0,line_pad=8 programs/whitespace_nospace.py
 	convert $(IMAGES)/whitespace_nospace_highlight.png -background white -extent 670x700 $(IMAGES)/whitespace_nospace_highlight.png
 
-render: between_functions whitespace_nospace_highlight
+order_shuffled_colors:
+	$(RENDER) programs/order_shuffled.py $(IMAGES)/order_shuffled_colors.png \
+		--line_colors "['#277E27','#277E27','','#9F7620','#9F7620','','#407EAF','#407EAF','','#BE6767','#BE6767','','#7D4F79','#7D4F79','#7D4F79','#7D4F79','#7D4F79','#7D4F79']"
+
+render: between_functions order_shuffled_colors whitespace_nospace_highlight
 	$(RENDER) programs/between_inline.py $(IMAGES)/between_inline.png
 	$(RENDER) programs/basketball_iterative.py $(IMAGES)/basketball_iterative.png
 	$(RENDER) programs/basketball_iterative_flipped.py $(IMAGES)/basketball_iterative_flipped.png
@@ -24,8 +28,6 @@ render: between_functions whitespace_nospace_highlight
 	$(RENDER) programs/nanotech_nocomments.py $(IMAGES)/nanotech_nocomments.png
 	$(RENDER) programs/order_inorder.py $(IMAGES)/order_inorder.png
 	$(RENDER) programs/order_shuffled.py $(IMAGES)/order_shuffled.png
-	$(RENDER) programs/order_shuffled.py $(IMAGES)/order_shuffled_colors.png \
-		--line_colors "['#87DE87','#87DE87','','#FFE680','#FFE680','','#80BEFF','#80BEFF','','#DE8787','#DE8787','','#DDAFE9','#DDAFE9','#DDAFE9','#DDAFE9','#DDAFE9','#DDAFE9']"
 	$(RENDER) programs/overload_numbers.py $(IMAGES)/overload_numbers.png
 	$(RENDER) programs/overload_words.py $(IMAGES)/overload_words.png
 	$(RENDER) programs/rectangle_long.py $(IMAGES)/rectangle_long.png
@@ -50,6 +52,7 @@ output:
 	python programs/nanotech_nocomments.py > programs/output/nanotech_nocomments.py.txt
 	python programs/order_inorder.py > programs/output/order_inorder.py.txt
 	python programs/order_shuffled.py > programs/output/order_shuffled.py.txt
+	python programs/order_shuffled.py > programs/output/order_shuffled_colors.py.txt
 	python programs/overload_numbers.py > programs/output/overload_numbers.py.txt
 	python programs/overload_words.py > programs/output/overload_words.py.txt
 	python programs/rectangle_long.py > programs/output/rectangle_long.py.txt
@@ -59,6 +62,7 @@ output:
 	python programs/scope_return.py > programs/output/scope_return.py.txt
 	python programs/whitespace_normal.py > programs/output/whitespace_normal.py.txt
 	python programs/whitespace_nospace.py > programs/output/whitespace_nospace.py.txt
+	python programs/whitespace_nospace.py > programs/output/whitespace_highlight.py.txt
 
 web-images:
 	cp $(IMAGES)/*.png $(WEB_IMAGES)/

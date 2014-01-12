@@ -29,7 +29,8 @@ def fname_noext(path):
 program_output = {}
 
 for p in glob(os.path.join(PROGRAM_OUTPUT_DIR, "*.txt")):
-    program_output[fname_noext(p)] = open(p, "r").read()
+    # Strip .txt off the end
+    program_output[fname_noext(p[:-4])] = open(p, "r").read()
 
 def get_experiment():
     assert "experiment_id" in session, "Missing experiment id"
@@ -356,7 +357,7 @@ def finish():
     # Try auto-grading responses
     for t in exp.trials:
         try:
-            prog_name = "{0}_{1}.py".format(t.program_base, t.program_version)
+            prog_name = "{0}_{1}".format(t.program_base, t.program_version)
             expected_output = program_output[prog_name]
             grade = grade_string(expected_output, t.response)
 
@@ -400,5 +401,6 @@ def details():
 
     # Experiment details
     exp = Experiment.query.get(int(request.args["id"]))
-    return render_template("core/details.html", exp=exp, grade_category=grade_category)
+    return render_template("core/details.html", exp=exp,
+            grade_category=grade_category, output=program_output)
 
