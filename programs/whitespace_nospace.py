@@ -9,6 +9,3 @@ print x_other,y_other
 x_end=x_base+x_other+2
 y_end=x_end*slope+intercept
 print x_end,y_end
-y_last=slope*x_end-intercept
-x_last=x_base+x_end+5
-print x_last,y_last
