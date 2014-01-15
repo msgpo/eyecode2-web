@@ -1,18 +1,17 @@
 a = True
 b = False
 c = True
+d = True
+e = False
 x = 10
 
-if ((not a and not b and c) or
-    (not c and b and not a) or
-    (not c and not b and not a) or
-    (b and not a and c)):
+if ((not a and not b and not c) or
+    (not a and b and c) or
+    (a and not b and c)):
     x = x / 2
 
-if ((a and c and b) or
-    (not b and not a and c) or
-    (not c and not b and not a) or
-    (a and b and not c)):
+f = a or b
+if (c != d or not f or not e):
     x = x + 1
 
 print x
